@@ -1,0 +1,73 @@
+<div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Simple Table</h4>
+          <!-- Add Button -->
+          <button *ngIf="!isEditMode && !isAddMode" (click)="toggleAddForm()" class="btn btn-success">Add New Entry</button>
+        </div>
+        <div class="card-body">
+          <!-- Form for Add or Edit Row -->
+          <div *ngIf="isAddMode || isEditMode" class="card mb-4">
+            <div class="card-header">
+              <h4 class="card-title">{{ isEditMode ? 'Edit' : 'Add' }} Entry</h4>
+            </div>
+            <div class="card-body">
+              <form (ngSubmit)="isEditMode ? updateRow() : addRow()">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input [(ngModel)]="formData[1]" name="name" class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label for="country">Country</label>
+                  <input [(ngModel)]="formData[2]" name="country" class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label for="city">City</label>
+                  <input [(ngModel)]="formData[3]" name="city" class="form-control" required />
+                </div>
+                <div class="form-group">
+                  <label for="salary">Salary</label>
+                  <input [(ngModel)]="formData[4]" name="salary" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-success">{{ isEditMode ? 'Update' : 'Add' }}</button>
+                <button type="button" (click)="cancelForm()" class="btn btn-secondary">Cancel</button>
+              </form>
+            </div>
+          </div>
+  
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <tr>
+                  <th *ngFor="let header of tableData1.headerRow">
+                    {{ header }}
+                  </th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of paginatedRows; let i = index">
+                  <td *ngFor="let cell of row">
+                    {{ cell }}
+                  </td>
+                  <td>
+                    <button (click)="editRow(i)" class="btn btn-warning mr-3">Edit</button>
+                    <button (click)="deleteRow(i)" class="btn btn-danger">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+  
+          <!-- Pagination Controls -->
+          <div class="pagination-container text-center mt-4">
+            <button (click)="previousPage()" class="btn btn-primary" [disabled]="currentPage === 1">Previous</button>
+            <span class="pagination-info">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button (click)="nextPage()" class="btn btn-primary" [disabled]="currentPage === totalPages">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

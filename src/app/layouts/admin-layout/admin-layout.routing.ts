@@ -1,4 +1,9 @@
 import { Routes } from '@angular/router';
+import { AnimalsComponent }         from '../../pages/tables/animals/animals.component';
+import { ClientsComponent }         from '../../pages/tables/clients/clients.component';
+import { CommandesComponent }       from '../../pages/tables/commandes/commandes.component';
+
+
 
 import { DashboardComponent } from '../../pages/dashboard/dashboard.component';
 import { UserComponent } from '../../pages/user/user.component';
@@ -13,6 +18,13 @@ export const AdminLayoutRoutes: Routes = [
     { path: 'dashboard',      component: DashboardComponent },
     { path: 'user',           component: UserComponent },
     { path: 'table',          component: TableComponent },
+    { path: 'animals',        component: AnimalsComponent },
+    { path: 'clients',        component: ClientsComponent },
+    { path: 'commandes',      component: CommandesComponent },
+
+
+
+
     { path: 'typography',     component: TypographyComponent },
     { path: 'icons',          component: IconsComponent },
     { path: 'maps',           component: MapsComponent },

@@ -8,6 +8,11 @@ import { AdminLayoutRoutes } from './admin-layout.routing';
 import { DashboardComponent }       from '../../pages/dashboard/dashboard.component';
 import { UserComponent }            from '../../pages/user/user.component';
 import { TableComponent }           from '../../pages/table/table.component';
+import { AnimalsComponent }         from '../../pages/tables/animals/animals.component';
+import { ClientsComponent }         from '../../pages/tables/clients/clients.component';
+import { CommandesComponent }         from '../../pages/tables/commandes/commandes.component';
+
+
 import { TypographyComponent }      from '../../pages/typography/typography.component';
 import { IconsComponent }           from '../../pages/icons/icons.component';
 import { MapsComponent }            from '../../pages/maps/maps.component';
@@ -27,6 +32,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     DashboardComponent,
     UserComponent,
     TableComponent,
+    AnimalsComponent,
+    ClientsComponent,
+    CommandesComponent,
+
     UpgradeComponent,
     TypographyComponent,
     IconsComponent,
