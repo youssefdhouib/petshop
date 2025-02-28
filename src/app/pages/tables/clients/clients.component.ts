@@ -20,6 +20,8 @@ export class ClientsComponent implements OnInit {
   // Pagination properties
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
+  public searchText: string = '';
+
 
   ngOnInit() {
     this.tableData1 = {
@@ -44,6 +46,11 @@ export class ClientsComponent implements OnInit {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     return this.tableData1.dataRows.slice(startIndex, endIndex);
+  }
+  filteredRows() {
+    return this.paginatedRows.filter(row => 
+      row[1].toLowerCase().includes(this.searchText.toLowerCase()) // Filtre sur le nom (colonne 1)
+    );
   }
 
   // Navigate to previous page

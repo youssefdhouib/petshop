@@ -20,6 +20,7 @@ export class AnimalsComponent implements OnInit {
   // Pagination properties
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
+  public searchText: string = '';
 
   ngOnInit() {
     this.tableData1 = {
@@ -52,6 +53,13 @@ export class AnimalsComponent implements OnInit {
       this.currentPage--;
     }
   }
+  
+
+filteredRows() {
+  return this.paginatedRows.filter(row => 
+    row[1].toLowerCase().includes(this.searchText.toLowerCase()) // Filtre sur le nom (colonne 1)
+  );
+}
 
   // Navigate to next page
   nextPage() {
