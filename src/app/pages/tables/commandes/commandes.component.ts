@@ -1,118 +1,154 @@
 import { Component, OnInit } from '@angular/core';
+import { OrdersService, Order } from '../../../services/orders'; // Import the service
 
 declare interface TableData {
   headerRow: string[];
-  dataRows: string[][];
+  dataRows: Order[];
 }
 
 @Component({
-  selector: 'commandes',
+  selector: 'orders',
   moduleId: module.id,
   templateUrl: 'commandes.component.html',
 })
-
 export class CommandesComponent implements OnInit {
   public tableData1: TableData;
-  public isAddMode = false;  // Add new entry form visibility
-  public isEditMode = false; // Edit existing entry form visibility
-  public formData: string[] = ['', '', '', '', '']; // Form data for adding/editing
-
-  // Pagination properties
+  public isAddMode = false;
+  public isEditMode = false;
+  public formData: Order = {
+    user_id: 0, 
+    animal_id: 0,
+    status: '', 
+    order_date: '', 
+    total_amount: 0
+  };
+  public imagePreview: string | ArrayBuffer | null = null;
+  public selectedFileName: string | null = null;
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
   public searchText: string = '';
 
+  constructor(private ordersService: OrdersService) {}
 
   ngOnInit() {
     this.tableData1 = {
-      headerRow: ['ID', 'Name', 'Country', 'City', 'Salary'],
-      dataRows: [
-        ['1', 'Dakota Rice', 'Niger', 'Oud-Turnhout', '$36,738'],
-        ['2', 'Minerva Hooper', 'Curaçao', 'Sinaai-Waas', '$23,789'],
-        ['3', 'Sage Rodriguez', 'Netherlands', 'Baileux', '$56,142'],
-        ['4', 'Philip Chaney', 'Korea, South', 'Overland Park', '$38,735'],
-        ['5', 'Doris Greene', 'Malawi', 'Feldkirchen in Kärnten', '$63,542'],
-        ['6', 'Mason Porter', 'Chile', 'Gloucester', '$78,615'],
-        ['7', 'John Doe', 'USA', 'New York', '$50,000'],
-        ['8', 'Jane Smith', 'Canada', 'Toronto', '$65,000'],
-        ['9', 'Tom Brown', 'UK', 'London', '$55,000'],
-        ['10', 'Lucy White', 'Australia', 'Sydney', '$70,000'],
-      ]
+      headerRow: ['ID', 'User ID', 'Animal ID', 'Status', 'Order Date', 'Total Amount'], // Adjust based on order data
+      dataRows: []
     };
+    this.getOrders(); // Fetch all orders when component loads
   }
-  filteredRows() {
-    return this.paginatedRows.filter(row => 
-      row[1].toLowerCase().includes(this.searchText.toLowerCase()) // Filtre sur le nom (colonne 1)
+
+  getOrders() {
+    this.ordersService.getAllOrders().subscribe(
+      (orders: Order[]) => {
+        console.log(orders);
+        this.tableData1.dataRows = orders;
+      },
+      (error) => {
+        console.error('Failed to fetch orders', error);
+      }
     );
   }
 
-  // Pagination Methods
+  // Pagination
   get paginatedRows() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
-    return this.tableData1.dataRows.slice(startIndex, endIndex);
+    return this.filteredRows().slice(startIndex, endIndex);
   }
 
-  // Navigate to previous page
   previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
+    if (this.currentPage > 1) this.currentPage--;
   }
 
-  // Navigate to next page
   nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+    if (this.currentPage < this.totalPages) this.currentPage++;
   }
 
-  // Total number of pages
   get totalPages() {
-    return Math.ceil(this.tableData1.dataRows.length / this.itemsPerPage);
+    return Math.ceil(this.filteredRows().length / this.itemsPerPage);
   }
 
-  // Toggle the Add Form visibility
+  filteredRows() {
+    return this.tableData1.dataRows.filter(row =>
+      row.status.toLowerCase().includes(this.searchText.toLowerCase())
+    );
+  }
+
+  // Add New Order
   toggleAddForm() {
     this.isAddMode = true;
-    this.formData = ['', '', '', '', '']; // Clear form for new entry
+    this.isEditMode = false;
+    this.formData = { user_id: 0, animal_id: 0, status: '', order_date: '', total_amount: 0 };
   }
 
-  // Add New Row
   addRow() {
-    const newRow = [...this.formData];
-    newRow[0] = (this.tableData1.dataRows.length + 1).toString(); // Auto increment ID
-    this.tableData1.dataRows.push(newRow);
-    this.formData = ['', '', '', '', '']; // Clear the form after submission
-    this.isAddMode = false; // Hide the form after adding
+    this.ordersService.createOrder(this.formData).subscribe(
+      () => {
+        this.getOrders();
+        this.cancelForm();
+      },
+      (error) => {
+        console.error('Failed to add order', error);
+      }
+    );
   }
 
-  // Cancel Add/Edit form
+  editRow(index: number) {
+    this.isEditMode = true;
+    this.isAddMode = false;
+    this.formData = { ...this.paginatedRows[index] };
+  }
+
+  updateRow() {
+    this.ordersService.updateOrder(this.formData.id!, this.formData).subscribe(
+      (updatedOrder) => {
+        console.log('Order updated:', updatedOrder);
+        this.getOrders(); // Mettre à jour la liste des commandes après l'édition
+        this.cancelForm();
+      },
+      (error) => {
+        console.error('Failed to update order', error);
+      }
+    );
+  }
+
+  deleteRow(index: number) {
+    const order = this.paginatedRows[index];
+    this.ordersService.deleteOrder(order.id!).subscribe(
+      () => {
+        console.log('Order deleted');
+        this.getOrders(); // Mettre à jour la liste des commandes après la suppression
+      },
+      (error) => {
+        console.error('Failed to delete order', error);
+      }
+    );
+  }
+  
+
   cancelForm() {
     this.isAddMode = false;
     this.isEditMode = false;
-    this.formData = ['', '', '', '', '']; // Reset form data
+    this.formData = { user_id: 0, animal_id: 0, status: '', order_date: '', total_amount: 0 };
+    this.imagePreview = null;
+    this.selectedFileName = null;
   }
 
-  // Edit (Update an existing row)
-  editRow(index: number) {
-    this.isEditMode = true;
-    this.isAddMode = false; // Hide add form if edit is in progress
-    this.formData = [...this.tableData1.dataRows[index]];
-  }
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      console.log('File selected:', file); // Debugging
+      this.selectedFileName = file.name;
 
-  // Update the existing row
-  updateRow() {
-    const index = this.tableData1.dataRows.findIndex(row => row[0] === this.formData[0]);
-    if (index !== -1) {
-      this.tableData1.dataRows[index] = [...this.formData];
+      // Preview the image
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      console.log('No file selected'); // Debugging
     }
-    this.isEditMode = false; // Hide form after updating
-    this.formData = ['', '', '', '', '']; // Clear form data
-  }
-
-  // Delete a row
-  deleteRow(index: number) {
-    this.tableData1.dataRows.splice(index, 1);
   }
 }

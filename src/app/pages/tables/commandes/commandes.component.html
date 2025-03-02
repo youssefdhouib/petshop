@@ -2,43 +2,46 @@
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">Simple Table</h4>
-
-        <!-- Bouton Ajouter -->
-        <button *ngIf="!isEditMode && !isAddMode" (click)="toggleAddForm()" class="btn btn-success">Add New Entry</button>
-
-        <!-- Champ de recherche -->
-        <input type="text" [(ngModel)]="searchText" class="form-control mt-2" placeholder="Search by name..." />
+        <h4 class="card-title">Orders Table</h4>
+        <button *ngIf="!isAddMode && !isEditMode" (click)="toggleAddForm()" class="btn btn-success">
+          Add New Order
+        </button>
+        <input type="text" [(ngModel)]="searchText" class="form-control mt-2" placeholder="Search by status..." />
       </div>
 
       <div class="card-body">
-        <!-- Formulaire d'ajout/modification -->
-        <div *ngIf="isAddMode || isEditMode" class="card mb-4">
-          <div class="card-header">
-            <h4 class="card-title">{{ isEditMode ? 'Edit' : 'Add' }} Entry</h4>
-          </div>
-          <div class="card-body">
-            <form (ngSubmit)="isEditMode ? updateRow() : addRow()">
-              <div class="form-group">
-                <label for="name">Name</label>
-                <input [(ngModel)]="formData[1]" name="name" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <label for="country">Country</label>
-                <input [(ngModel)]="formData[2]" name="country" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <label for="city">City</label>
-                <input [(ngModel)]="formData[3]" name="city" class="form-control" required />
-              </div>
-              <div class="form-group">
-                <label for="salary">Salary</label>
-                <input [(ngModel)]="formData[4]" name="salary" class="form-control" required />
-              </div>
-              <button type="submit" class="btn btn-success">{{ isEditMode ? 'Update' : 'Add' }}</button>
-              <button type="button" (click)="cancelForm()" class="btn btn-secondary">Cancel</button>
-            </form>
-          </div>
+        <!-- Form -->
+        <div *ngIf="isAddMode || isEditMode">
+          <form (ngSubmit)="isEditMode ? updateRow() : addRow()">
+            <div class="form-group">
+              <label>User ID</label>
+              <input type="number" [(ngModel)]="formData.user_id" name="user_id" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label>Animal ID</label>
+              <input type="number" [(ngModel)]="formData.animal_id" name="animal_id" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select [(ngModel)]="formData.status" name="status" class="form-control" required>
+                <option value="" disabled>Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Confirmed">Confirmed</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Order Date</label>
+              <input type="date" [(ngModel)]="formData.order_date" name="order_date" class="form-control" required />
+            </div>
+            <div class="form-group">
+              <label>Total Amount</label>
+              <input type="number" [(ngModel)]="formData.total_amount" name="total_amount" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-success">{{ isEditMode ? 'Update' : 'Add' }}</button>
+            <button type="button" (click)="cancelForm()" class="btn btn-secondary">Cancel</button>
+          </form>
         </div>
 
         <!-- Table -->
@@ -46,19 +49,20 @@
           <table class="table">
             <thead class="text-primary">
               <tr>
-                <th *ngFor="let header of tableData1.headerRow">
-                  {{ header }}
-                </th>
+                <th *ngFor="let header of tableData1.headerRow">{{ header }}</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let row of filteredRows(); let i = index">
-                <td *ngFor="let cell of row">
-                  {{ cell }}
-                </td>
+              <tr *ngFor="let row of paginatedRows; let i = index">
+                <td>{{ row.id }}</td>
+                <td>{{ row.user_id }}</td>
+                <td>{{ row.animal_id }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.order_date }}</td>
+                <td>{{ row.total_amount }}</td>
                 <td>
-                  <button (click)="editRow(i)" class="btn btn-warning mr-3">Edit</button>
+                  <button (click)="editRow(i)" class="btn btn-warning mr-2">Edit</button>
                   <button (click)="deleteRow(i)" class="btn btn-danger">Delete</button>
                 </td>
               </tr>
@@ -67,20 +71,11 @@
         </div>
 
         <!-- Pagination -->
-        
         <div class="pagination-container text-center mt-4">
-          <button (click)="previousPage()" class="btn btn-primary mx-2" [disabled]="currentPage === 1">
-            <i class="fa fa-arrow-left"></i> <!-- Icône flèche gauche -->
-          </button>
-          
-          <span class="pagination-info">Page {{ currentPage }} sur {{ totalPages }}</span>
-          
-          <button (click)="nextPage()" class="btn btn-primary mx-2" [disabled]="currentPage === totalPages">
-            <i class="fa fa-arrow-right"></i> <!-- Icône flèche droite -->
-          </button>
+          <button (click)="previousPage()" class="btn btn-primary mx-2" [disabled]="currentPage === 1">Prev</button>
+          <span>Page {{ currentPage }} / {{ totalPages }}</span>
+          <button (click)="nextPage()" class="btn btn-primary mx-2" [disabled]="currentPage === totalPages">Next</button>
         </div>
-        
-        
       </div>
     </div>
   </div>
