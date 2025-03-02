@@ -17,10 +17,10 @@ export interface Animal {
   providedIn: 'root'
 })
 export class AnimalService {
-  private apiUrl = 'http://localhost:8080/petshop/api/animals';
-  private apiUrladd = 'http://localhost:8080/petshop/api/animals/add';
-  private apiUrldelete = 'http://localhost:8080/petshop/api/animals/delete';
-  private apiUrlupdate = 'http://localhost:8080/petshop/api/animals/update';
+  private apiUrl = 'http://localhost:8081/petshop/api/animals';
+  private apiUrladd = 'http://localhost:8081/petshop/api/animals/add';
+  private apiUrldelete = 'http://localhost:8081/petshop/api/animals/delete';
+  private apiUrlupdate = 'http://localhost:8081/petshop/api/animals/update';
 
   constructor(private http: HttpClient) {}
 
