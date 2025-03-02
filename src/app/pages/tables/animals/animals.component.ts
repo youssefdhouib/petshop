@@ -22,9 +22,10 @@ export class AnimalsComponent implements OnInit {
     birthdate: '',
     gender: '',
     price: 0,
-    imageUrl: ''
+    imageUrl: '' // Add this line
   };
-
+  public imagePreview: string | ArrayBuffer | null = null;
+  public selectedFileName: string | null = null;
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
   public searchText: string = '';
@@ -33,7 +34,7 @@ export class AnimalsComponent implements OnInit {
 
   ngOnInit() {
     this.tableData1 = {
-      headerRow: ['ID', 'Name', 'Species', 'Breed', 'Birthdate', 'Gender', 'Price'],
+      headerRow: ['ID', 'Name', 'Species', 'Breed', 'Birthdate', 'Gender', 'Price', 'Image '], // Add 'Image URL'
       dataRows: []
     };
     this.getAnimals(); // Fetch all animals when component loads
@@ -125,5 +126,25 @@ export class AnimalsComponent implements OnInit {
     this.isAddMode = false;
     this.isEditMode = false;
     this.formData = { name: '', species: '', breed: '', birthdate: '', gender: '', price: 0, imageUrl: '' };
+    this.imagePreview = null;
+    this.selectedFileName = null;
   }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      console.log('File selected:', file); // Debugging
+      this.selectedFileName = file.name;
+
+      // Preview the image
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(file);
+    } else {
+      console.log('No file selected'); // Debugging
+    }
+  }
+
 }
