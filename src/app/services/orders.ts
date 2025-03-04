@@ -9,6 +9,7 @@ export interface Order {
   status: string;
   order_date: string;
   total_amount: number;
+  
 }
 
 @Injectable({
@@ -27,7 +28,7 @@ export class OrdersService {
     return this.http.get<Order>(`${this.apiUrl}/get/${id}`);
   }
 
-  createOrder(order: Order): Observable<any> {
+  createOrder(order: Order): Observable<Order> {
     return this.http.post<Order>(`${this.apiUrl}/add`, order);
   }
 
