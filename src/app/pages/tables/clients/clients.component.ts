@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { UsersService, User } from '../../../services/users'; // Import the service
 
 declare interface TableData {
   headerRow: string[];
-  dataRows: string[][];
+  dataRows: User[];
 }
 
 @Component({
@@ -10,109 +11,122 @@ declare interface TableData {
   moduleId: module.id,
   templateUrl: 'clients.component.html',
 })
-
 export class ClientsComponent implements OnInit {
   public tableData1: TableData;
-  public isAddMode = false;  // Add new entry form visibility
-  public isEditMode = false; // Edit existing entry form visibility
-  public formData: string[] = ['', '', '', '', '']; // Form data for adding/editing
-
-  // Pagination properties
+  public isAddMode = false;
+  public isEditMode = false;
+  public formData: User = {
+    fullname: '',
+    email: '',
+    phone: '',
+    password: '', // Ajouter le champ password
+    role: ''
+  };
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
   public searchText: string = '';
 
+  constructor(private usersService: UsersService) {}
 
   ngOnInit() {
     this.tableData1 = {
-      headerRow: ['ID', 'Name', 'Country', 'City', 'Salary'],
-      dataRows: [
-        ['1', 'Dakota Rice', 'Niger', 'Oud-Turnhout', '$36,738'],
-        ['2', 'Minerva Hooper', 'Curaçao', 'Sinaai-Waas', '$23,789'],
-        ['3', 'Sage Rodriguez', 'Netherlands', 'Baileux', '$56,142'],
-        ['4', 'Philip Chaney', 'Korea, South', 'Overland Park', '$38,735'],
-        ['5', 'Doris Greene', 'Malawi', 'Feldkirchen in Kärnten', '$63,542'],
-        ['6', 'Mason Porter', 'Chile', 'Gloucester', '$78,615'],
-        ['7', 'John Doe', 'USA', 'New York', '$50,000'],
-        ['8', 'Jane Smith', 'Canada', 'Toronto', '$65,000'],
-        ['9', 'Tom Brown', 'UK', 'London', '$55,000'],
-        ['10', 'Lucy White', 'Australia', 'Sydney', '$70,000'],
-      ]
+      headerRow: ['ID', 'Full Name', 'Phone', 'Email', 'Role'], // En-têtes mis à jour
+      dataRows: []
     };
+    this.getUsers(); // Fetch all clients when component loads
   }
 
-  // Pagination Methods
-  get paginatedRows() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.tableData1.dataRows.slice(startIndex, endIndex);
-  }
-  filteredRows() {
-    return this.paginatedRows.filter(row => 
-      row[1].toLowerCase().includes(this.searchText.toLowerCase()) // Filtre sur le nom (colonne 1)
+  getUsers() {
+    this.usersService.getAllUsers().subscribe(
+      (users: User[]) => {
+        console.log(users);
+        this.tableData1.dataRows = users;
+      },
+      (error) => {
+        console.error('Failed to fetch users', error);
+      }
     );
   }
 
-  // Navigate to previous page
+  // Pagination
+  get paginatedRows() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredRows().slice(startIndex, endIndex);
+  }
+
   previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
+    if (this.currentPage > 1) this.currentPage--;
   }
 
-  // Navigate to next page
   nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+    if (this.currentPage < this.totalPages) this.currentPage++;
   }
 
-  // Total number of pages
   get totalPages() {
-    return Math.ceil(this.tableData1.dataRows.length / this.itemsPerPage);
+    return Math.ceil(this.filteredRows().length / this.itemsPerPage);
   }
 
-  // Toggle the Add Form visibility
+  filteredRows() {
+    return this.tableData1.dataRows.filter(row =>
+      row.fullname.toLowerCase().includes(this.searchText.toLowerCase())
+    );
+  }
+
+  // Add New Client
   toggleAddForm() {
     this.isAddMode = true;
-    this.formData = ['', '', '', '', '']; // Clear form for new entry
+    this.isEditMode = false;
+    this.formData = { fullname: '', email: '', phone: '', password: '', role: '' };
   }
 
-  // Add New Row
   addRow() {
-    const newRow = [...this.formData];
-    newRow[0] = (this.tableData1.dataRows.length + 1).toString(); // Auto increment ID
-    this.tableData1.dataRows.push(newRow);
-    this.formData = ['', '', '', '', '']; // Clear the form after submission
-    this.isAddMode = false; // Hide the form after adding
+    this.usersService.createUser(this.formData).subscribe(
+      () => {
+        this.getUsers();
+        this.cancelForm();
+      },
+      (error) => {
+        console.error('Failed to add user', error);
+      }
+    );
   }
 
-  // Cancel Add/Edit form
+  editRow(index: number) {
+    this.isEditMode = true;
+    this.isAddMode = false;
+    this.formData = { ...this.paginatedRows[index] };
+  }
+
+  updateRow() {
+    this.usersService.updateUser(this.formData.id!, this.formData).subscribe(
+      (updatedUser) => {
+        console.log('User updated:', updatedUser);
+        this.getUsers(); // Mettre à jour la liste des clients après l'édition
+        this.cancelForm();
+      },
+      (error) => {
+        console.error('Failed to update user', error);
+      }
+    );
+  }
+
+  deleteRow(index: number) {
+    const user = this.paginatedRows[index];
+    this.usersService.deleteUser(user.id!).subscribe(
+      () => {
+        console.log('User deleted');
+        this.getUsers(); // Mettre à jour la liste des clients après la suppression
+      },
+      (error) => {
+        console.error('Failed to delete user', error);
+      }
+    );
+  }
+
   cancelForm() {
     this.isAddMode = false;
     this.isEditMode = false;
-    this.formData = ['', '', '', '', '']; // Reset form data
-  }
-
-  // Edit (Update an existing row)
-  editRow(index: number) {
-    this.isEditMode = true;
-    this.isAddMode = false; // Hide add form if edit is in progress
-    this.formData = [...this.tableData1.dataRows[index]];
-  }
-
-  // Update the existing row
-  updateRow() {
-    const index = this.tableData1.dataRows.findIndex(row => row[0] === this.formData[0]);
-    if (index !== -1) {
-      this.tableData1.dataRows[index] = [...this.formData];
-    }
-    this.isEditMode = false; // Hide form after updating
-    this.formData = ['', '', '', '', '']; // Clear form data
-  }
-
-  // Delete a row
-  deleteRow(index: number) {
-    this.tableData1.dataRows.splice(index, 1);
+    this.formData = { fullname: '', email: '', phone: '', password: '', role: '' };
   }
 }
