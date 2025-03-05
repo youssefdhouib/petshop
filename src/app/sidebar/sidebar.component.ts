@@ -13,16 +13,17 @@ export const ROUTES: RouteInfo[] = [
     { path: '/icons',         title: 'Icons',             icon:'nc-diamond',    class: '' },
     { path: '/maps',          title: 'Maps',              icon:'nc-pin-3',      class: '' },
     { path: '/notifications', title: 'Notifications',     icon:'nc-bell-55',    class: '' },
-    { path: '/user',          title: 'User Profile',      icon:'nc-single-02',  class: '' },
-    { path: '/table',         title: 'Table List',        icon:'nc-tile-56',    class: '' },
+    { path: '/auth/signin',    title: 'Sign In',            icon:'nc-key-25',     class: '' },
+    { path: '/auth/signup', title: 'Sign Up',         icon:'nc-badge',      class: '' },
+  /*{ path: '/table',         title: 'Table List',        icon:'nc-tile-56',    class: '' }, */
     { path: '/animals',         title: 'Animals List',        icon:'nc-tile-56',    class: '' },
-    { path: '/clients',         title: 'Clients List',        icon:'nc-tile-56',    class: '' },
+    { path: '/clients',         title: 'Clients List',        icon:'nc-single-02',    class: '' },
     { path: '/commandes',         title: 'Commandes List',        icon:'nc-tile-56',    class: '' },
 
 
 
     { path: '/typography',    title: 'Typography',        icon:'nc-caps-small', class: '' },
-    { path: '/upgrade',       title: 'Upgrade to PRO',    icon:'nc-spaceship',  class: 'active-pro' },
+
 ];
 
 @Component({

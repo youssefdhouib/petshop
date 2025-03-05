@@ -1,0 +1,40 @@
+<div class="auth-container">
+  <div class="auth-box">
+      <h3 class="title">Sign In</h3>
+
+      <form (ngSubmit)="login(signinForm)" #signinForm="ngForm">
+
+          <!-- Email Field -->
+          <label>Email</label>
+          <div class="input-group">
+              <span class="input-icon"><i class="nc-icon nc-email-85"></i></span>
+              <input type="email" class="form-control" placeholder="Enter your email" [(ngModel)]="user.email" name="email" required email #email="ngModel">
+          </div>
+          <div *ngIf="email.invalid && email.touched" class="error">
+            <small *ngIf="email.errors?.required">Email is required.</small>
+            <small *ngIf="email.errors?.email">Please enter a valid email.</small>
+          </div>
+
+          <!-- Password Field -->
+          <label>Password</label>
+          <div class="input-group">
+              <span class="input-icon"><i class="nc-icon nc-key-25"></i></span>
+              <input type="password" class="form-control" placeholder="Enter your password" [(ngModel)]="user.password" name="password" required #password="ngModel">
+          </div>
+          <div *ngIf="password.invalid && password.touched" class="error">
+            <small>Password is required.</small>
+          </div>
+
+          <!-- Sign In Button -->
+          <button type="submit" class="btn btn-primary btn-block mt-4" [disabled]="signinForm.invalid">Sign In</button>
+
+      </form>
+
+      <div class="footer">
+          <!-- Forgot Password Link -->
+          <p><a routerLink="/auth/forgot-password" class="link">Forgot Password?</a></p>
+          <!-- Sign Up Link -->
+          <p>Don't have an account? <a routerLink="/auth/signup" class="link">Sign Up</a></p>
+      </div>
+  </div>
+</div>
