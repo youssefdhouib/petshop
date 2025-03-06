@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
-import { NgForm } from '@angular/forms'; // Import NgForm for form validation
+import { NgForm } from '@angular/forms';
+
+import { Router } from '@angular/router'; // Import Router for navigation
+import { AuthService } from 'app/services/auth';
 
 @Component({
   selector: 'app-signup',
@@ -8,12 +11,23 @@ import { NgForm } from '@angular/forms'; // Import NgForm for form validation
 })
 export class SignupComponent {
   user = { fullname: '', email: '', phone: '', password: '' };
+  errorMessage: string = ''; // To store error messages
+
+  constructor(private authService: AuthService, private router: Router) {}
 
   // Form submission method
   register(form: NgForm) {
     if (form.valid) {
-      console.log('User registration data:', this.user);
-      // Call the service here to send data to the API
+      this.authService.register(this.user).subscribe({
+        next: (response) => {
+          console.log('User registered:', response);
+          this.router.navigate(['/auth/signin']); // Redirect to sign-in page after successful registration
+        },
+        error: (err) => {
+          console.error('Registration error:', err);
+          this.errorMessage = err.error.message || 'Registration failed. Please try again.';
+        }
+      });
     } else {
       console.log('Form is invalid');
     }
