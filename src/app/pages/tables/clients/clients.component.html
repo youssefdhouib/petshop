@@ -33,8 +33,8 @@
               <label>Role</label>
               <select [(ngModel)]="formData.role" name="role" class="form-control" required>
                 <option value="" disabled>Select Role</option>
+                <option value="client">Client</option>
                 <option value="admin">Admin</option>
-                <option value="user">User</option>
               </select>
             </div>
             <button type="submit" class="btn btn-success">{{ isEditMode ? 'Update' : 'Add' }}</button>
