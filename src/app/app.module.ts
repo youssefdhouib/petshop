@@ -13,8 +13,8 @@ import { AppRoutes } from './app.routing';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { HttpClientModule } from "@angular/common/http";
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
+/* import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor'; */
 
 
 
@@ -36,7 +36,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     HttpClientModule,
 
   ],
-  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
+  providers: [ /* { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true } */],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
