@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-
+import { Router } from '@angular/router';
 export interface User {
   fullname?: string;
   email: string;
@@ -16,7 +16,7 @@ export interface User {
 export class AuthService {
   private apiUrl = 'http://localhost:8081/petshop/api/auth/'; // Update this with your backend API
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private router: Router) { }
 
   // 🔹 Register User
   register(user: User): Observable<any> {
@@ -47,6 +47,7 @@ export class AuthService {
 
   // 🔹 Logout User (Remove Token)
   logout(): void {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('authToken'); // Remove JWT token
+    this.router.navigate(['/auth/signin']); // Redirect to login page
   }
 }

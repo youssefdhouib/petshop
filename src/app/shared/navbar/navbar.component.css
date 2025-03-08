@@ -1,0 +1,50 @@
+.date-display {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: rgb(60, 60, 60);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.date-display i {
+  margin-right: 8px;
+  font-size: 15px;
+  color: #d44747;
+}
+.nav-item .nav-link i {
+  font-size: 22px;
+}
+
+.dropdown-menu i {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.nav-item .nc-icon {
+  font-size: 22px;
+}
+
+.nav-item .nav-link {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.nav-item .dropdown-menu {
+  min-width: 180px;
+}
+
+.nav-item .dropdown-menu a {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.nav-item .dropdown-menu a i {
+  margin-right: 8px;
+  font-size: 20px;
+}
