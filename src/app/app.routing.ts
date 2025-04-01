@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { AdminGuard } from './layouts/admin-layout/admin.guard';
+import { AuthGuard } from './pages/authentification/auth.guard';
 
 export const AppRoutes: Routes = [
   {
@@ -15,11 +17,20 @@ export const AppRoutes: Routes = [
   {
     path: '',
     component: AdminLayoutComponent,
+    canActivate: [AuthGuard, AdminGuard],
     children: [
         {
       path: '',
       loadChildren: () => import('./layouts/admin-layout/admin-layout.module').then(x => x.AdminLayoutModule)
   }]},
+
+  /* {
+    path: 'client',
+    component: ClientLayoutComponent,
+    canActivate: [AuthGuard, ClientGuard], // Protect Client Routes
+    loadChildren: () => import('./layouts/client-layout/client-layout.module').then(m => m.ClientLayoutModule)
+  }, */
+
   {
     path: '**',
     redirectTo: 'dashboard'

@@ -13,6 +13,7 @@ import { AppRoutes } from './app.routing';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { HttpClientModule } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
 /* import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './interceptors/auth.interceptor'; */
 
@@ -21,7 +22,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor'; */
 @NgModule({
   declarations: [
     AppComponent,
-    AdminLayoutComponent
+    AdminLayoutComponent,
+
   ],
   imports: [
     BrowserAnimationsModule,
@@ -34,6 +36,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor'; */
     FooterModule,
     FixedPluginModule,
     HttpClientModule,
+    FormsModule
 
   ],
   providers: [ /* { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true } */],

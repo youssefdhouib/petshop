@@ -36,7 +36,7 @@ export class UsersService {
 
   // Récupérer un utilisateur par son ID
   getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/get/${id}`).pipe(
+    return this.http.get<User>(`${this.apiUrl}/id/${id}`).pipe(
       catchError(this.handleError)
     );
   }

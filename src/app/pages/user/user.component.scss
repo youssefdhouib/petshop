@@ -1,0 +1,106 @@
+.container {
+  margin-top: 40px;
+}
+
+.card-user {
+  width: 90%;
+  max-width: 900px;
+  height: auto;
+  min-height: 550px; /* Increased min-height for better spacing */
+  margin: auto;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Soft shadow for a modern look */
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.card-user:hover {
+  transform: translateY(-5px); /* Subtle hover effect */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.image img {
+  width: 100%;
+  height: 220px; /* Taller background image */
+  object-fit: cover;
+}
+
+.avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #fff;
+  margin-top: -80px; /* Lifts avatar over the background */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+
+.avatar:hover {
+  transform: scale(1.1); /* Slight zoom effect */
+}
+
+.author {
+  margin-top: 15px;
+}
+
+.author .title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+.description {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.description i {
+  margin-right: 8px;
+  color: #007bff; /* Icon color */
+}
+
+.btn-round {
+  border-radius: 30px;
+  padding: 12px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s ease-in-out, transform 0.2s;
+}
+
+.btn-round:hover {
+  transform: scale(1.05);
+}
+
+/* Form Styling */
+.card-body form {
+  padding: 20px;
+}
+
+.input-custom {
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease-in-out;
+  font-size: 16px;
+}
+
+.input-custom:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-block {
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background 0.3s ease-in-out;
+}
+
+.btn-block:hover {
+  background: #0056b3;
+}
