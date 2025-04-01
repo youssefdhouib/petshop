@@ -2,11 +2,11 @@
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">Orders Table</h4>
+        <h4 class="card-title">Orders Management</h4>
         <button *ngIf="!isAddMode && !isEditMode" (click)="toggleAddForm()" class="btn btn-success">
           Add New Order
         </button>
-        <input type="text" [(ngModel)]="searchText" class="form-control mt-2" placeholder="Search by status..." />
+        <input type="text" [(ngModel)]="searchText" class="form-control mt-2" placeholder="Search orders..." />
       </div>
 
       <div class="card-body">
@@ -17,28 +17,50 @@
               <label>User ID</label>
               <input type="number" [(ngModel)]="formData.user_id" name="user_id" class="form-control" required />
             </div>
+            
             <div class="form-group">
-              <label>Animal ID</label>
-              <input type="number" [(ngModel)]="formData.animal_id" name="animal_id" class="form-control" required />
+              <label>Animals</label>
+              <div *ngFor="let animal of formData.animals; let i = index" class="mb-3">
+                <div class="row">
+                  <div class="col-md-6">
+                    <select [(ngModel)]="animal.id" [name]="'animal_' + i" class="form-control" required
+                            (change)="onAnimalSelect(animal.id, i)">
+                      <option value="" disabled>Select Animal</option>
+                      <option *ngFor="let a of allAnimals" [value]="a.id">
+                        {{a.name}} - {{a.price | currency}}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <input type="number" [(ngModel)]="animal.price" class="form-control" readonly />
+                  </div>
+                  <div class="col-md-2">
+                    <button type="button" (click)="removeAnimal(i)" class="btn btn-danger">Remove</button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" (click)="addAnimal()" class="btn btn-secondary">Add Animal</button>
             </div>
+
             <div class="form-group">
               <label>Status</label>
               <select [(ngModel)]="formData.status" name="status" class="form-control" required>
-                <option value="" disabled>Select Status</option>
                 <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
-                <option value="Confirmed">Confirmed</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Order Date</label>
               <input type="date" [(ngModel)]="formData.order_date" name="order_date" class="form-control" required />
             </div>
+
             <div class="form-group">
               <label>Total Amount</label>
-              <input type="number" [(ngModel)]="formData.total_amount" name="total_amount" class="form-control" required />
+              <input type="number" [(ngModel)]="formData.total_amount" name="total_amount" class="form-control" readonly />
             </div>
+
             <button type="submit" class="btn btn-success">{{ isEditMode ? 'Update' : 'Add' }}</button>
             <button type="button" (click)="cancelForm()" class="btn btn-secondary">Cancel</button>
           </form>
@@ -56,11 +78,19 @@
             <tbody>
               <tr *ngFor="let row of paginatedRows; let i = index">
                 <td>{{ row.id }}</td>
-                <td>{{ row.user_id }}</td>
-                <td>{{ row.animal_id }}</td>
-                <td>{{ row.status }}</td>
-                <td>{{ row.order_date }}</td>
-                <td>{{ row.total_amount }}</td>
+                <td>{{ row.user_name || 'User #' + row.user_id }}</td>
+                <td>
+                  <div *ngFor="let animal of row.animals" class="animal-item">
+                    {{ animal.name }} - {{ animal.price | currency }}
+                  </div>
+                </td>
+                <td>
+                  <span [ngClass]="'badge badge-' + getStatusClass(row.status)">
+                    {{ row.status }}
+                  </span>
+                </td>
+                <td>{{ row.order_date | date:'shortDate' }}</td>
+                <td>{{ row.total_amount | currency }}</td>
                 <td>
                   <button (click)="editRow(i)" class="btn btn-warning mr-2">Edit</button>
                   <button (click)="deleteRow(i)" class="btn btn-danger">Delete</button>

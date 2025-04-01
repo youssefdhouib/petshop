@@ -27,6 +27,9 @@ export class AnimalService {
   getAllAnimals(): Observable<Animal[]> {
     return this.http.get<Animal[]>(this.apiUrl);
   }
+  getAvailableAnimals(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/available-animals`);
+  }
 
   getAnimalById(id: number): Observable<Animal> {
     return this.http.get<Animal>(`${this.apiUrl}/${id}`);
