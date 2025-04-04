@@ -168,12 +168,14 @@ export class DashboardComponent implements OnInit {
     
     // 4. Calculer le revenu pour chaque commande
     orders.forEach(order => {
+      if (order.status === 'Confirmed' || order.status === 'Pending') {
+
       const orderDate = new Date(order.order_date);
       const monthKey = `${orderDate.getFullYear()}-${(orderDate.getMonth()+1).toString().padStart(2, '0')}`;
       
       if (revenueMap.has(monthKey)) {
         revenueMap.set(monthKey, revenueMap.get(monthKey)! + order.total_amount);
-      }
+      }}
     });
     
     // 5. Convertir en tableau et formater
@@ -223,70 +225,29 @@ export class DashboardComponent implements OnInit {
     });
   }
   private calculateRevenueLastWeek(): void {
-    this.ordersService.getAllOrders().subscribe(
-      (orders: Order[]) => {
-        const today = new Date();
-        const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-        
-        this.revenueLastWeek = orders
-          .filter(order => {
-            const orderDate = new Date(order.order_date);
-            return orderDate >= lastWeek && orderDate <= today;
-          })
-          .reduce((sum, order) => sum + order.total_amount, 0);
-      },
-      error => {
-        console.error('Erreur lors du calcul du revenu:', error);
-      }
-    );
-  }
+  this.ordersService.getAllOrders().subscribe(
+    (orders: Order[]) => {
+      const today = new Date();
+      const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+      
+      this.revenueLastWeek = orders
+        .filter(order => {
+          const orderDate = new Date(order.order_date);
+          const isValidStatus = order.status === 'Confirmed' || order.status === 'Pending';
+          return orderDate >= lastWeek && 
+                 orderDate <= today && 
+                 isValidStatus &&
+                 order.status !== 'Cancelled';
+        })
+        .reduce((sum, order) => sum + order.total_amount, 0);
+    },
+    error => {
+      console.error('Erreur lors du calcul du revenu:', error);
+    }
+  );
+}
 
 
-  private createChart(monthlyData: number[]) {
-    const canvas = document.getElementById('ordersChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    new Chart(ctx, {
-      type: 'bar', // Vous pouvez utiliser 'line' si vous préférez
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [{
-          label: 'Commandes Mensuelles',
-          data: monthlyData,
-          backgroundColor: '#4acccd',
-          borderColor: '#3bb7b8',
-          borderWidth: 2,
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => `${context.parsed.y} commandes`
-            }
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              precision: 0,
-              stepSize: 1
-            }
-          }
-        }
-      }
-    });
-  }
 
   private loadOrdersThisMonth() {
     this.ordersService.getAllOrders().subscribe(

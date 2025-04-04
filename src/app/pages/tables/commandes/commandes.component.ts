@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { OrdersService, Order, AnimalOrder } from '../../../services/orders';
-import { AnimalService } from '../../../services/animals';
+import { Animal, AnimalService } from '../../../services/animals';
+import { UsersService } from '../../../services/users'; // Ajoutez ce service
+import { forkJoin } from 'rxjs';
+
 
 declare interface TableData {
   headerRow: string[];
@@ -13,6 +16,8 @@ declare interface TableData {
   templateUrl: 'commandes.component.html',
 })
 export class CommandesComponent implements OnInit {
+  availableAnimals: Animal[] = [];
+  currentOrderAnimals: Animal[] = [];
   public tableData1: TableData;
   public isAddMode = false;
   public isEditMode = false;
@@ -27,10 +32,14 @@ export class CommandesComponent implements OnInit {
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
   public searchText: string = '';
+  public users: any[] = []; // Ajoutez cette propriété
+
 
   constructor(
     private ordersService: OrdersService,
-    private animalService: AnimalService
+    private animalService: AnimalService,
+    private userService: UsersService // Ajoutez ce service
+
   ) {}
 
   ngOnInit() {
@@ -40,6 +49,22 @@ export class CommandesComponent implements OnInit {
     };
     this.getOrders();
     this.loadAnimals();
+    this.loadUsers();
+  }
+  
+  loadUsers() {
+    this.userService.getAllUsers().subscribe(
+      (users) => {
+        this.users = users;
+      },
+      (error) => {
+        console.error('Failed to fetch users', error);
+      }
+    );
+  }
+  getUserName(userId: number): string {
+    const user = this.users.find(u => u.id === userId);
+    return user ? user.fullname || user.email : `User #${userId}`;
   }
 
   getOrders() {
@@ -99,6 +124,8 @@ export class CommandesComponent implements OnInit {
       order_date: new Date().toISOString().split('T')[0],
       status: 'Pending'
     };
+    this.loadAvailableAnimals();
+
   }
   addOrder() {
     console.log('Données avant envoi:', this.formData);
@@ -139,35 +166,75 @@ export class CommandesComponent implements OnInit {
   }
 
   editRow(index: number) {
+    const order = this.paginatedRows[index];
     this.isEditMode = true;
-    this.isAddMode = false;
-    this.formData = { ...this.paginatedRows[index] };
+    
+    forkJoin([
+      this.animalService.getAvailableAnimals(),
+      this.animalService.getAnimalsForOrder(order.id)
+    ]).subscribe({
+      next: ([available, current]) => {
+        this.availableAnimals = [...available, ...current];
+        this.currentOrderAnimals = [...current];
+        this.formData = { ...order };
+      },
+      error: (err) => console.error('Failed to load animals for edit', err)
+    });
+  }
+  isAnimalAvailable(animalId: number, currentIndex: number): boolean {
+    if (!this.isEditMode) return true;
+    
+    // Permettre de garder l'animal actuel sélectionné
+    const currentAnimal = this.formData.animals[currentIndex];
+    if (currentAnimal?.id === animalId) return true;
+    
+    // Vérifier si l'animal est disponible
+    return this.availableAnimals.some(a => a.id === animalId);
+  }
+  loadAvailableAnimals() {
+    this.animalService.getAvailableAnimals().subscribe({
+      next: (animals) => this.availableAnimals = animals,
+      error: (err) => console.error('Failed to load available animals', err)
+    });
   }
 
   updateRow() {
     this.calculateTotal();
-    this.ordersService.updateOrder(this.formData.id!, this.formData).subscribe(
-      () => {
-        this.getOrders();
+    
+    const orderData = {
+      user_id: this.formData.user_id,
+      animals: this.formData.animals.filter(a => a.id > 0),
+      total_amount: this.formData.total_amount,
+      order_date: this.formData.order_date,
+      status: this.formData.status
+    };
+  
+    if (!this.formData.id) return;
+  
+    this.ordersService.updateOrder(this.formData.id, orderData).subscribe({
+      next: () => {
+        this.getOrders(); // Rafraîchir la liste
         this.cancelForm();
       },
-      (error) => {
+      error: (error) => {
         console.error('Failed to update order', error);
       }
-    );
+    });
   }
 
   deleteRow(index: number) {
     const order = this.paginatedRows[index];
-    if (confirm('Are you sure you want to delete this order?')) {
-      this.ordersService.deleteOrder(order.id!).subscribe(
-        () => {
+    if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+      this.ordersService.deleteOrder(order.id!).subscribe({
+        next: () => {
+          // Recharger les données après suppression
           this.getOrders();
         },
-        (error) => {
-          console.error('Failed to delete order', error);
+        error: (error) => {
+          console.error('Failed to delete order:', error);
+          // Afficher un message d'erreur à l'utilisateur
         }
-      );
+      });
     }
   }
 
@@ -206,7 +273,7 @@ export class CommandesComponent implements OnInit {
   getStatusClass(status: string): string {
     switch(status.toLowerCase()) {
       case 'pending': return 'warning';
-      case 'completed': return 'success';
+      case 'confirmed': return 'success';
       case 'cancelled': return 'danger';
       default: return 'secondary';
     }

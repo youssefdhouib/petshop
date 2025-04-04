@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Animal } from './animals'; // Importez l'interface Animal si elle existe
 
 export interface Order {
@@ -67,12 +67,30 @@ export class OrdersService {
     );
 }
 
-  updateOrder(id: number, order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.apiUrl}/${id}`, order);
-  }
+updateOrder(orderId: number, orderData: any): Observable<any> {
+  const payload = {
+    user_id: orderData.user_id,
+    animal_ids: orderData.animals.map((a: any) => a.id),
+    total_amount: orderData.total_amount,
+    order_date: orderData.order_date,
+    status: orderData.status
+  };
 
-  deleteOrder(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  return this.http.put(`${this.apiUrl}/update/${orderId}`, payload).pipe(
+    catchError(error => {
+      console.error('Error updating order:', error);
+      return throwError(error);
+    })
+  );
+}
+
+  deleteOrder(orderId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/delete/${orderId}`).pipe(
+      catchError(error => {
+        console.error('Error deleting order:', error);
+        return throwError(error);
+      })
+    );
   }
 
   // Nouvelle méthode pour récupérer les détails des animaux
