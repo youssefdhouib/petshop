@@ -67,7 +67,7 @@
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
+        <div class="table-responsive" *ngIf="!isAddMode && !isEditMode">
           <table class="table">
             <thead class="text-primary">
               <tr>
@@ -92,7 +92,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-container text-center mt-4">
+        <div class="pagination-container text-center mt-4" *ngIf="!isAddMode && !isEditMode">
           <button (click)="previousPage()" class="btn btn-primary mx-2" [disabled]="currentPage === 1">Prev</button>
           <span>Page {{ currentPage }} / {{ totalPages }}</span>
           <button (click)="nextPage()" class="btn btn-primary mx-2" [disabled]="currentPage === totalPages">Next</button>
