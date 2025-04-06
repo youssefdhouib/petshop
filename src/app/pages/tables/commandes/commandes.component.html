@@ -12,35 +12,43 @@
       <div class="card-body">
         <!-- Form -->
         <div *ngIf="isAddMode || isEditMode">
-          <form (ngSubmit)="isEditMode ? updateRow() : addRow()">
+          <form (ngSubmit)="isEditMode ? updateRow() : addRow()" #orderForm="ngForm">
             <div class="form-group">
               <label>User</label>
-              <select [(ngModel)]="formData.user_id" name="user_id" class="form-control" required>
+              <select [(ngModel)]="formData.user_id" name="user_id" class="form-control" required
+                      [class.is-invalid]="submitted && !formData.user_id">
                 <option value="" disabled>Select User</option>
                 <option *ngFor="let user of users" [value]="user.id">
                   {{ user.fullname || user.email }} (ID: {{ user.id }})
                 </option>
               </select>
+              <div class="invalid-feedback" *ngIf="submitted && !formData.user_id">
+                Please select a user
+              </div>
             </div>
             
             <div class="form-group">
               <label>Animals</label>
               <div *ngFor="let animal of formData.animals; let i = index" class="mb-3">
-                <div class="row align-items-center"> <!-- Ajout de align-items-center -->
-                  <div class="col-md-8"> <!-- Changement de col-md-6 à col-md-8 -->
+                <div class="row align-items-center">
+                  <div class="col-md-8">
                     <select [(ngModel)]="animal.id" [name]="'animal_' + i" class="form-control" required
-        (change)="onAnimalSelect(animal.id, i)">
-  <option value="" disabled>Select Animal</option>
-  <option *ngFor="let a of availableAnimals" 
-          [value]="a.id"
-          [disabled]="!isAnimalAvailable(a.id, i)">
-    {{a.name}} - {{a.price | currency}}
-    <span *ngIf="!isAnimalAvailable(a.id, i) && isEditMode"> (Réservé)</span>
-  </option>
-</select>
+                            [class.is-invalid]="submitted && !animal.id"
+                            (change)="onAnimalSelect(animal.id, i)">
+                      <option value="" disabled>Select Animal</option>
+                      <option *ngFor="let a of availableAnimals" 
+                              [value]="a.id"
+                              [disabled]="!isAnimalAvailable(a.id, i)">
+                        {{a.name}} - {{a.price | currency}}
+                        <span *ngIf="!isAnimalAvailable(a.id, i) && isEditMode"> (Réservé)</span>
+                      </option>
+                    </select>
+                    <div class="invalid-feedback" *ngIf="submitted && !animal.id">
+                      Please select an animal
+                    </div>
                   </div>
-                  <div class="col-md-4"> <!-- Changement de col-md-2 à col-md-4 -->
-                    <button type="button" (click)="removeAnimal(i)" class="btn btn-danger w-70"> <!-- Ajout de w-100 -->
+                  <div class="col-md-4">
+                    <button type="button" (click)="removeAnimal(i)" class="btn btn-danger w-70">
                       Remove
                     </button>
                   </div>
@@ -48,21 +56,29 @@
               </div>
               <button type="button" (click)="addAnimal()" class="btn btn-secondary">Add Animal</button>
             </div>
-
+          
             <div class="form-group">
               <label>Status</label>
-              <select [(ngModel)]="formData.status" name="status" class="form-control" required>
+              <select [(ngModel)]="formData.status" name="status" class="form-control" required
+                      [class.is-invalid]="submitted && !formData.status">
+                <option value="" disabled>Select Status</option>
                 <option value="Pending">Pending</option>
                 <option value="Confirmed">Confirmed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
+              <div class="invalid-feedback" *ngIf="submitted && !formData.status">
+                Please select a status
+              </div>
             </div>
-
+          
             <div class="form-group">
               <label>Order Date</label>
-              <input type="date" [(ngModel)]="formData.order_date" name="order_date" class="form-control" required />
+              <input type="date" [(ngModel)]="formData.order_date" name="order_date" class="form-control" required
+                     [class.is-invalid]="submitted && !formData.order_date"/>
+              <div class="invalid-feedback" *ngIf="submitted && !formData.order_date">
+                Please select a date
+              </div>
             </div>
-
             <div class="form-group">
               <label>Total Amount</label>
               <input type="number" [(ngModel)]="formData.total_amount" name="total_amount" class="form-control" readonly />

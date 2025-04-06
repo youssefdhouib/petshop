@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersService, User } from '../../../services/users'; // Import the service
+import { UsersService, User } from '../../../services/users';
+import { ToastrService } from 'ngx-toastr';
 
 declare interface TableData {
   headerRow: string[];
@@ -16,34 +17,39 @@ export class ClientsComponent implements OnInit {
   public isAddMode = false;
   public isEditMode = false;
   public formData: User = {
-  fullname: '',
-  email: '',
-  phone: '',
-  password: '',
-  role: 'client' // Valeur par défaut
-};
+    fullname: '',
+    email: '',
+    phone: '',
+    password: '',
+    role: 'client'
+  };
+  public submitted = false;
+
   public currentPage: number = 1;
   public itemsPerPage: number = 5;
   public searchText: string = '';
 
-  constructor(private usersService: UsersService) {}
-
-  ngOnInit() {
+  constructor(
+    private usersService: UsersService,
+    private toastr: ToastrService
+  ) {
     this.tableData1 = {
-      headerRow: ['ID', 'Full Name', 'Email', 'Phone', 'Role'], // En-têtes mis à jour
+      headerRow: ['ID', 'Full Name', 'Email', 'Phone', 'Role'],
       dataRows: []
     };
-    this.getUsers(); // Fetch all clients when component loads
+  }
+
+  ngOnInit() {
+    this.getUsers();
   }
 
   getUsers() {
     this.usersService.getAllUsers().subscribe(
       (users: User[]) => {
-        console.log(users);
         this.tableData1.dataRows = users;
       },
       (error) => {
-        console.error('Failed to fetch users', error);
+        this.showError('Failed to fetch users', error);
       }
     );
   }
@@ -51,8 +57,7 @@ export class ClientsComponent implements OnInit {
   // Pagination
   get paginatedRows() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredRows().slice(startIndex, endIndex);
+    return this.filteredRows().slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   previousPage() {
@@ -73,67 +78,166 @@ export class ClientsComponent implements OnInit {
     );
   }
 
-  // Add New Client
+  // Form Methods
   toggleAddForm() {
     this.isAddMode = true;
     this.isEditMode = false;
-    this.formData = { fullname: '', email: '', phone: '', password: '', role: '' };
+    this.formData = { 
+      fullname: '', 
+      email: '', 
+      phone: '', 
+      password: '', 
+      role: 'client' 
+    };
+  }
+  editRow(index: number) {
+    this.isEditMode = true;
+    this.isAddMode = false;
+    this.formData = { ...this.paginatedRows[index], password: '' };
   }
 
   addRow() {
+    this.submitted = true;
+    
+    if (!this.isFormValid()) {
+      this.showMissingFieldsAlert();
+      return;
+    }
+  
     this.usersService.createUser(this.formData).subscribe(
       () => {
+        this.showSuccess('Client added successfully');
         this.getUsers();
         this.cancelForm();
       },
       (error) => {
-        console.error('Failed to add user', error);
+        this.showError('Failed to add client', error);
       }
     );
   }
-
-  editRow(index: number) {
-    this.isEditMode = true;
-    this.isAddMode = false;
-    this.formData = { ...this.paginatedRows[index] };
-  }
-
-  updateRow() {
-    const user = this.paginatedRows.find(u => u.id === this.formData.id);
   
-    // Si le champ password est vide, conservez le mot de passe existant
+  updateRow() {
+    this.submitted = true;
+    
+    if (!this.isFormValid(true)) {
+      this.showMissingFieldsAlert(true);
+      return;
+    }
+  
+    const user = this.paginatedRows.find(u => u.id === this.formData.id);
     if (!this.formData.password) {
       this.formData.password = user?.password || '';
     }
   
     this.usersService.updateUser(this.formData.id!, this.formData).subscribe(
-      (updatedUser) => {
-        console.log('User updated:', updatedUser);
-        this.getUsers(); // Rafraîchir la liste des utilisateurs
+      () => {
+        this.showSuccess('Client updated successfully');
+        this.getUsers();
         this.cancelForm();
       },
       (error) => {
-        console.error('Failed to update user', error);
+        this.showError('Failed to update client', error);
       }
     );
   }
-
+  
+  // Ajoutez ces méthodes utilitaires
+  private isFormValid(isEdit: boolean = false): boolean {
+    if (!this.formData.fullname || !this.formData.email || 
+        !this.formData.phone || !this.formData.role) {
+      return false;
+    }
+    
+    // Password only required for new clients
+    if (!isEdit && !this.formData.password) {
+      return false;
+    }
+    
+    return true;
+  }
+  
+  private showMissingFieldsAlert(isEdit: boolean = false): void {
+    const missingFields = [];
+    
+    if (!this.formData.fullname) missingFields.push('Full Name');
+    if (!this.formData.email) missingFields.push('Email');
+    if (!this.formData.phone) missingFields.push('Phone');
+    if (!this.formData.role) missingFields.push('Role');
+    if (!isEdit && !this.formData.password) missingFields.push('Password');
+  
+    this.showWarning(`Please fill in all required fields: ${missingFields.join(', ')}`);
+  }
   deleteRow(index: number) {
-    const user = this.paginatedRows[index];
-    this.usersService.deleteUser(user.id!).subscribe(
-      () => {
-        console.log('User deleted');
-        this.getUsers(); // Mettre à jour la liste des clients après la suppression
-      },
-      (error) => {
-        console.error('Failed to delete user', error);
-      }
-    );
+    if (confirm('Are you sure you want to delete this client?')) {
+      const user = this.paginatedRows[index];
+      this.usersService.deleteUser(user.id!).subscribe(
+        () => {
+          this.showSuccess('Client deleted successfully');
+          this.getUsers();
+        },
+        (error) => {
+          this.showError('Failed to delete client', error);
+        }
+      );
+    }
   }
 
   cancelForm() {
     this.isAddMode = false;
     this.isEditMode = false;
-    this.formData = { fullname: '', email: '', phone: '', password: '', role: '' };
+    this.formData = { 
+      fullname: '', 
+      email: '', 
+      phone: '', 
+      password: '', 
+      role: 'client' 
+    };
   }
+
+  // Notification Methods
+// Modifiez uniquement les méthodes de notification comme suit :
+
+private showSuccess(message: string) {
+  this.toastr.success(
+    `<span data-notify="icon" class="nc-icon nc-bell-55"></span><span data-notify="message">${message}</span>`,
+    "",
+    {
+      timeOut: 4000,
+      closeButton: true,
+      enableHtml: true,
+      toastClass: "alert alert-success alert-with-icon",
+      positionClass: "toast-top-right"  // Position en haut à droite
+    }
+  );
+}
+
+private showWarning(message: string) {
+  this.toastr.warning(
+    `<span data-notify="icon" class="nc-icon nc-bell-55"></span><span data-notify="message">${message}</span>`,
+    "",
+    {
+      timeOut: 5000,
+      closeButton: true,
+      enableHtml: true,
+      toastClass: "alert alert-warning alert-with-icon",
+      positionClass: "toast-top-right"  // Position en haut à droite
+    }
+  );
+}
+
+private showError(message: string, error?: any) {
+  const errorMessage = error?.message ? `${message}: ${error.message}` : message;
+  
+  this.toastr.error(
+    `<span data-notify="icon" class="nc-icon nc-bell-55"></span><span data-notify="message">${errorMessage}</span>`,
+    "",
+    {
+      timeOut: 5000,
+      enableHtml: true,
+      closeButton: true,
+      toastClass: "alert alert-danger alert-with-icon",
+      positionClass: "toast-top-right"  // Position en haut à droite
+    }
+  );
+}
 }
