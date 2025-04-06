@@ -22,7 +22,7 @@
                 </option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Animals</label>
               <div *ngFor="let animal of formData.animals; let i = index" class="mb-3">
@@ -31,7 +31,7 @@
                     <select [(ngModel)]="animal.id" [name]="'animal_' + i" class="form-control" required
         (change)="onAnimalSelect(animal.id, i)">
   <option value="" disabled>Select Animal</option>
-  <option *ngFor="let a of availableAnimals" 
+  <option *ngFor="let a of availableAnimals"
           [value]="a.id"
           [disabled]="!isAnimalAvailable(a.id, i)">
     {{a.name}} - {{a.price | currency}}
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
+        <div class="table-responsive" *ngIf="!isAddMode && !isEditMode">
           <table class="table">
             <thead class="text-primary">
               <tr>
@@ -108,7 +108,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-container text-center mt-4">
+        <div class="pagination-container text-center mt-4" *ngIf="!isAddMode && !isEditMode">
           <button (click)="previousPage()" class="btn btn-primary mx-2" [disabled]="currentPage === 1">Prev</button>
           <span>Page {{ currentPage }} / {{ totalPages }}</span>
           <button (click)="nextPage()" class="btn btn-primary mx-2" [disabled]="currentPage === totalPages">Next</button>

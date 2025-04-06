@@ -12,7 +12,7 @@
       <div class="card-body">
         <!-- Form -->
         <div *ngIf="isAddMode || isEditMode">
-          <form (ngSubmit)="isEditMode ? updateRow() : addRow()">
+          <form (ngSubmit)="submitForm()" enctype="multipart/form-data">
             <div class="form-group">
               <label>Name</label>
               <input type="text" [(ngModel)]="formData.name" name="name" class="form-control" required />
@@ -41,79 +41,38 @@
               <label>Price</label>
               <input type="number" [(ngModel)]="formData.price" name="price" class="form-control" required />
             </div>
-<!-- File Upload Field -->
-<div class="form-group mt-4" [ngStyle]="{ 'margin-bottom': '1.5rem' }">
-  <!-- Label connected to the file input -->
-  <label class="mr-3">Image </label>
-  <label
-    for="file-upload"
-    [ngStyle]="{
-      'display': 'inline-block',
-      'padding': '10px 15px',
-      'background-color': '#007bff',
-      'color': 'white',
-      'border-radius': '5px',
-      'cursor': 'pointer',
-      'transition': 'background-color 0.3s ease',
-      'text-align': 'center',
-      'font-weight': 'bold',
-      'margin-bottom': '10px'
-    }"
-    (mouseover)="labelStyle['background-color'] = '#0056b3'"
-    (mouseout)="labelStyle['background-color'] = '#007bff'"
-  >
-    Upload Image
-    <span
-      *ngIf="selectedFileName"
-      [ngStyle]="{
-        'margin-left': '10px',
-        'font-style': 'italic',
-        'color': '#333'
-      }"
-    >
-      {{ selectedFileName }}
-    </span>
-  </label>
-  <!-- File input -->
-  <input
-    id="file-upload"
-    type="file"
-    (change)="onFileSelected($event)"
-    [ngStyle]="{ 'display': 'none' }"
-    accept="image/*"
-  />
-  <!-- Image Preview -->
-  <div
-    *ngIf="imagePreview"
-    [ngStyle]="{
-      'margin-top': '10px',
-      'text-align': 'center'
-    }"
-  >
-    <img
-      [src]="imagePreview"
-      alt="Preview"
-      [ngStyle]="{
-        'max-width': '100%',
-        'max-height': '150px',
-        'border-radius': '5px',
-        'box-shadow': '0 2px 5px rgba(0, 0, 0, 0.1)'
-      }"
-    />
-  </div>
-</div>
+
+            <!-- File Upload Field -->
+            <div class="form-group mt-4">
+              <label>Image</label>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="animalImage"
+                       (change)="onFileSelected($event)" accept="image/*">
+                <label class="custom-file-label" for="animalImage">
+                  {{ selectedFileName || 'Choose file' }}
+                </label>
+              </div>
+              <!-- Image Preview -->
+              <div *ngIf="imagePreview" class="mt-2 text-center">
+                <img [src]="imagePreview" alt="Preview" class="img-thumbnail" style="max-height: 150px;">
+              </div>
+              <div *ngIf="!imagePreview && formData.currentImageUrl" class="mt-2 text-center">
+                <img [src]="getFullImageUrl(formData.currentImageUrl)" alt="Current Image"
+                     class="img-thumbnail" style="max-height: 150px;">
+              </div>
+            </div>
+
             <button type="submit" class="btn btn-success">{{ isEditMode ? 'Update' : 'Add' }}</button>
             <button type="button" (click)="cancelForm()" class="btn btn-secondary">Cancel</button>
           </form>
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
+        <div class="table-responsive" *ngIf="!isAddMode && !isEditMode">
           <table class="table">
             <thead class="text-primary">
               <tr>
                 <th *ngFor="let header of tableData1.headerRow">{{ header }}</th>
-                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -125,7 +84,10 @@
                 <td>{{ row.birthdate }}</td>
                 <td>{{ row.gender }}</td>
                 <td>{{ row.price }}</td>
-                <td>{{ row.imageUrl }}</td>
+                <td>
+                  <img [src]="getFullImageUrl(row.imageUrl)" alt="{{ row.name }}"
+                       style="max-height: 50px;" onerror="this.src='assets/img/default-animal.jpg'">
+                </td>
                 <td>
                   <button (click)="editRow(i)" class="btn btn-warning mr-2">Edit</button>
                   <button (click)="deleteRow(i)" class="btn btn-danger">Delete</button>
@@ -136,7 +98,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-container text-center mt-4">
+        <div class="pagination-container text-center mt-4" *ngIf="!isAddMode && !isEditMode">
           <button (click)="previousPage()" class="btn btn-primary mx-2" [disabled]="currentPage === 1">Prev</button>
           <span>Page {{ currentPage }} / {{ totalPages }}</span>
           <button (click)="nextPage()" class="btn btn-primary mx-2" [disabled]="currentPage === totalPages">Next</button>
