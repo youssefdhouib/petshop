@@ -33,11 +33,10 @@
                 <div class="row align-items-center">
                   <div class="col-md-8">
                     <select [(ngModel)]="animal.id" [name]="'animal_' + i" class="form-control" required
-<<<<<<< HEAD
                             [class.is-invalid]="submitted && !animal.id"
                             (change)="onAnimalSelect(animal.id, i)">
                       <option value="" disabled>Select Animal</option>
-                      <option *ngFor="let a of availableAnimals" 
+                      <option *ngFor="let a of availableAnimals"
                               [value]="a.id"
                               [disabled]="!isAnimalAvailable(a.id, i)">
                         {{a.name}} - {{a.price | currency}}
@@ -47,17 +46,6 @@
                     <div class="invalid-feedback" *ngIf="submitted && !animal.id">
                       Please select an animal
                     </div>
-=======
-        (change)="onAnimalSelect(animal.id, i)">
-  <option value="" disabled>Select Animal</option>
-  <option *ngFor="let a of availableAnimals"
-          [value]="a.id"
-          [disabled]="!isAnimalAvailable(a.id, i)">
-    {{a.name}} - {{a.price | currency}}
-    <span *ngIf="!isAnimalAvailable(a.id, i) && isEditMode"> (Réservé)</span>
-  </option>
-</select>
->>>>>>> 9739ad47ea042f4ec04312cbea7b1bc85f1d1814
                   </div>
                   <div class="col-md-4">
                     <button type="button" (click)="removeAnimal(i)" class="btn btn-danger w-70">
@@ -68,7 +56,7 @@
               </div>
               <button type="button" (click)="addAnimal()" class="btn btn-secondary">Add Animal</button>
             </div>
-          
+
             <div class="form-group">
               <label>Status</label>
               <select [(ngModel)]="formData.status" name="status" class="form-control" required
@@ -82,7 +70,7 @@
                 Please select a status
               </div>
             </div>
-          
+
             <div class="form-group">
               <label>Order Date</label>
               <input type="date" [(ngModel)]="formData.order_date" name="order_date" class="form-control" required
